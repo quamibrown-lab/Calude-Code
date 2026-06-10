@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Costa Rica Surf Trip — June 19–23, 2026</title>
+  <style>
+    :root {
+      --ocean:    #0077b6;
+      --ocean-lt: #00b4d8;
+      --foam:     #90e0ef;
+      --sand:     #f4e4c1;
+      --sand-dk:  #e9c46a;
+      --jungle:   #2d6a4f;
+      --jungle-lt:#52b788;
+      --sunset:   #f4a261;
+      --coral:    #e76f51;
+      --white:    #ffffff;
+      --off-white:#f8f9fa;
+      --gray-100: #f1f3f5;
+      --gray-200: #dee2e6;
+      --gray-500: #adb5bd;
+      --gray-700: #495057;
+      --gray-900: #212529;
+      --shadow-sm: 0 1px 4px rgba(0,0,0,.08);
+      --shadow:    0 4px 16px rgba(0,0,0,.10);
+      --shadow-lg: 0 8px 32px rgba(0,0,0,.14);
+      --radius:    14px;
+      --radius-lg: 22px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(160deg, #e0f4ff 0%, #f0faf4 50%, #fff8ee 100%);
+      min-height: 100vh;
+      color: var(--gray-900);
+    }
+
+    /* ── HERO ── */
+    .hero {
+      background: linear-gradient(135deg, #023e8a 0%, #0077b6 40%, #00b4d8 70%, #2d6a4f 100%);
+      color: white;
+      padding: 52px 24px 44px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 120'%3E%3Cpath fill='rgba(255,255,255,0.07)' d='M0,60 C360,120 1080,0 1440,60 L1440,120 L0,120 Z'/%3E%3C/svg%3E") bottom/cover no-repeat;
+    }
+    .hero-flag { font-size: 2.4rem; margin-bottom: 10px; }
+    .hero h1 {
+      font-size: clamp(1.8rem, 4vw, 3rem);
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      text-shadow: 0 2px 12px rgba(0,0,0,.3);
+    }
+    .hero-sub {
+      margin-top: 8px;
+      font-size: 1.05rem;
+      opacity: 0.88;
+      font-weight: 400;
+    }
+    .hero-dates {
+      display: inline-flex;
+      gap: 10px;
+      margin-top: 18px;
+      background: rgba(255,255,255,0.15);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,0.25);
+      border-radius: 100px;
+      padding: 8px 22px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+    }
+
+    /* ── TRIP TIMELINE ── */
+    .timeline-section {
+      max-width: 900px;
+      margin: -22px auto 0;
+      padding: 0 20px;
+      position: relative;
+      z-index: 2;
+    }
+    .timeline-card {
+      background: white;
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+      padding: 24px 28px;
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0;
+    }
+    .tl-day {
+      text-align: center;
+      padding: 12px 8px;
+      border-right: 1px solid var(--gray-200);
+      position: relative;
+    }
+    .tl-day:last-child { border-right: none; }
+    .tl-day.active-tamarindo { background: linear-gradient(160deg, #e0f3ff, #cce9f8); border-radius: 10px; }
+    .tl-day.active-hermosa   { background: linear-gradient(160deg, #e8f8ef, #cef0db); border-radius: 10px; }
+    .tl-day.drive-day        { background: linear-gradient(160deg, #fff8e1, #fcedc4); border-radius: 10px; }
+    .tl-dow  { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--gray-500); }
+    .tl-date { font-size: 1.6rem; font-weight: 800; color: var(--gray-900); line-height: 1; margin: 4px 0; }
+    .tl-month{ font-size: 0.72rem; color: var(--gray-500); text-transform: uppercase; letter-spacing: .5px; }
+    .tl-label{ margin-top: 8px; font-size: 0.72rem; font-weight: 700; padding: 3px 8px; border-radius: 20px; display: inline-block; }
+    .lbl-tam  { background: #dbeeff; color: #0077b6; }
+    .lbl-drive{ background: #fff0c2; color: #c77700; }
+    .lbl-herm { background: #d4f5e2; color: #2d6a4f; }
+    .tl-arrow {
+      position: absolute; right: -13px; top: 50%; transform: translateY(-50%);
+      width: 26px; height: 26px;
+      background: white; border-radius: 50%;
+      border: 2px solid var(--gray-200);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.7rem; z-index: 3; color: var(--gray-500);
+    }
+
+    /* ── LAYOUT ── */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 32px 20px 60px;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin: 40px 0 20px;
+    }
+    .section-badge {
+      width: 44px; height: 44px;
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.3rem;
+      flex-shrink: 0;
+    }
+    .badge-tam  { background: linear-gradient(135deg, #0077b6, #00b4d8); }
+    .badge-herm { background: linear-gradient(135deg, #2d6a4f, #52b788); }
+    .badge-drive{ background: linear-gradient(135deg, #e9c46a, #f4a261); }
+    .section-title { font-size: 1.5rem; font-weight: 800; }
+    .section-dates { font-size: 0.85rem; color: var(--gray-500); font-weight: 500; margin-top: 2px; }
+
+    /* ── STATS ROW ── */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+    .stat-card {
+      background: white;
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      box-shadow: var(--shadow-sm);
+      border-top: 3px solid transparent;
+    }
+    .stat-card.ocean { border-color: var(--ocean); }
+    .stat-card.jungle{ border-color: var(--jungle-lt); }
+    .stat-card.sunset{ border-color: var(--sunset); }
+    .stat-card.coral { border-color: var(--coral); }
+    .stat-label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .7px; color: var(--gray-500); }
+    .stat-value { font-size: 1.55rem; font-weight: 800; margin-top: 4px; }
+    .stat-sub   { font-size: 0.75rem; color: var(--gray-500); margin-top: 2px; }
+
+    /* ── LISTINGS TABLE ── */
+    .table-wrap {
+      background: white;
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      margin-bottom: 28px;
+    }
+    .table-wrap table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.875rem;
+    }
+    .table-wrap thead th {
+      background: var(--gray-100);
+      padding: 12px 16px;
+      text-align: left;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .8px;
+      color: var(--gray-700);
+      border-bottom: 2px solid var(--gray-200);
+      white-space: nowrap;
+    }
+    .table-wrap tbody tr {
+      border-bottom: 1px solid var(--gray-100);
+      transition: background .15s;
+    }
+    .table-wrap tbody tr:last-child { border-bottom: none; }
+    .table-wrap tbody tr:hover { background: var(--off-white); }
+    .table-wrap tbody tr.top-pick { background: #fffbea; }
+    .table-wrap tbody tr.top-pick:hover { background: #fff4cc; }
+    .table-wrap td {
+      padding: 13px 16px;
+      vertical-align: middle;
+    }
+    .rank-badge {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.8rem;
+      font-weight: 800;
+    }
+    .rank-1 { background: #ffd700; color: #7a5a00; }
+    .rank-2 { background: #e8e8e8; color: #555; }
+    .rank-3 { background: #e8c9a0; color: #7a4f20; }
+    .rank-n { background: var(--gray-100); color: var(--gray-500); }
+
+    .listing-name { font-weight: 700; color: var(--gray-900); }
+    .listing-name a { color: var(--ocean); text-decoration: none; }
+    .listing-name a:hover { text-decoration: underline; }
+    .listing-sub { font-size: 0.75rem; color: var(--gray-500); margin-top: 2px; }
+
+    .tag {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 3px 9px; border-radius: 20px;
+      font-size: 0.72rem; font-weight: 700;
+      white-space: nowrap;
+    }
+    .tag-beach-hot  { background: #dbeeff; color: #0056a0; }
+    .tag-beach-walk { background: #e8f4ff; color: #0077b6; }
+    .tag-ocean-view { background: #e0f7fa; color: #006064; }
+    .tag-pool-priv  { background: #e8f5e9; color: #2e7d32; }
+    .tag-pool-share { background: #f1f8e9; color: #558b2f; }
+    .tag-unknown    { background: var(--gray-100); color: var(--gray-500); }
+
+    .price-cell { font-weight: 700; color: var(--jungle); white-space: nowrap; }
+    .price-est  { font-size: 0.7rem; color: var(--gray-500); }
+
+    .stars { color: #f4a261; font-size: 0.85rem; }
+    .reviews{ font-size: 0.75rem; color: var(--gray-500); }
+
+    /* ── TOP PICKS ── */
+    .top-picks {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 18px;
+      margin-bottom: 36px;
+    }
+    .pick-card {
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      background: white;
+      position: relative;
+    }
+    .pick-header {
+      padding: 18px 20px 14px;
+      color: white;
+    }
+    .pick-1-tam  { background: linear-gradient(135deg, #023e8a, #0077b6); }
+    .pick-2-tam  { background: linear-gradient(135deg, #0077b6, #00b4d8); }
+    .pick-3-tam  { background: linear-gradient(135deg, #00b4d8, #90e0ef); }
+    .pick-1-herm { background: linear-gradient(135deg, #1b4332, #2d6a4f); }
+    .pick-2-herm { background: linear-gradient(135deg, #2d6a4f, #52b788); }
+    .pick-3-herm { background: linear-gradient(135deg, #52b788, #95d5b2); }
+    .pick-medal { font-size: 1.6rem; }
+    .pick-rank  { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; opacity: .8; margin-top: 4px; }
+    .pick-name  { font-size: 1.05rem; font-weight: 800; margin-top: 6px; line-height: 1.3; }
+    .pick-body  { padding: 16px 20px; }
+    .pick-reason{ font-size: 0.85rem; color: var(--gray-700); line-height: 1.55; }
+    .pick-tags  { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+    .pick-link  {
+      display: block;
+      margin: 14px 20px 16px;
+      text-align: center;
+      padding: 9px;
+      border-radius: 10px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-decoration: none;
+      transition: opacity .2s;
+    }
+    .pick-link:hover { opacity: .85; }
+    .link-ocean { background: #dbeeff; color: #0056a0; }
+    .link-jungle{ background: #d4f5e2; color: #1b4332; }
+
+    /* ── DRIVE SECTION ── */
+    .drive-card {
+      background: white;
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+    .drive-header {
+      background: linear-gradient(135deg, #e9c46a, #f4a261);
+      padding: 20px 28px;
+      color: white;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .drive-header h3 { font-size: 1.2rem; font-weight: 800; }
+    .drive-header .drive-sub { font-size: 0.85rem; opacity: .9; margin-top: 3px; }
+    .drive-body { padding: 22px 28px; }
+    .drive-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+    .drive-stat {
+      background: var(--gray-100);
+      border-radius: 12px;
+      padding: 14px 16px;
+      text-align: center;
+    }
+    .drive-stat .ds-icon { font-size: 1.4rem; }
+    .drive-stat .ds-val  { font-size: 1.3rem; font-weight: 800; color: var(--gray-900); margin: 4px 0 2px; }
+    .drive-stat .ds-lbl  { font-size: 0.72rem; color: var(--gray-500); font-weight: 600; text-transform: uppercase; letter-spacing: .5px; }
+
+    .drive-steps { list-style: none; }
+    .drive-steps li {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--gray-100);
+      font-size: 0.875rem;
+      color: var(--gray-700);
+      line-height: 1.5;
+    }
+    .drive-steps li:last-child { border-bottom: none; }
+    .step-dot {
+      width: 26px; height: 26px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #e9c46a, #f4a261);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: white;
+      margin-top: 1px;
+    }
+    .step-time { font-weight: 700; color: var(--gray-900); }
+
+    /* ── SEARCH LINKS ── */
+    .search-links-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 10px;
+      margin-bottom: 28px;
+    }
+    .search-link-btn {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 16px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: var(--shadow-sm);
+      text-decoration: none;
+      color: var(--gray-900);
+      font-size: 0.82rem;
+      font-weight: 600;
+      transition: box-shadow .15s, transform .15s;
+      border: 1px solid var(--gray-200);
+    }
+    .search-link-btn:hover {
+      box-shadow: var(--shadow);
+      transform: translateY(-2px);
+    }
+    .search-link-btn .btn-icon {
+      width: 32px; height: 32px;
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+    .btn-ocean-bg { background: #dbeeff; }
+    .btn-jungle-bg{ background: #d4f5e2; }
+
+    /* ── CAVEAT BANNER ── */
+    .caveat {
+      background: #fff8e1;
+      border: 1px solid #ffe082;
+      border-radius: 12px;
+      padding: 14px 18px;
+      font-size: 0.82rem;
+      color: #7a5f00;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      margin-bottom: 32px;
+    }
+    .caveat-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 1px; }
+
+    /* ── FOOTER ── */
+    .footer {
+      text-align: center;
+      padding: 24px;
+      font-size: 0.78rem;
+      color: var(--gray-500);
+      border-top: 1px solid var(--gray-200);
+      background: white;
+    }
+
+    @media (max-width: 700px) {
+      .timeline-card { grid-template-columns: repeat(5, 1fr); gap: 0; }
+      .tl-date { font-size: 1.2rem; }
+      .tl-arrow { display: none; }
+      .table-wrap { overflow-x: auto; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════
+     HERO
+════════════════════════════════════════ -->
+<header class="hero">
+  <div class="hero-flag">🇨🇷🏄</div>
+  <h1>Costa Rica Surf Trip</h1>
+  <p class="hero-sub">Tamarindo &nbsp;·&nbsp; Playa Hermosa (near Jacó) &nbsp;·&nbsp; Pacific Coast</p>
+  <div class="hero-dates">
+    📅&nbsp; June 19 – 23, 2026 &nbsp;·&nbsp; 4 Nights &nbsp;·&nbsp; 2 Locations
+  </div>
+</header>
+
+<!-- ═══════════════════════════════════════
+     TRIP TIMELINE
+════════════════════════════════════════ -->
+<section class="timeline-section">
+  <div class="timeline-card">
+
+    <!-- Thu Jun 19 -->
+    <div class="tl-day active-tamarindo">
+      <div class="tl-dow">Thu</div>
+      <div class="tl-date">19</div>
+      <div class="tl-month">Jun 2026</div>
+      <div class="tl-label lbl-tam">Check-in</div>
+      <div class="tl-arrow">›</div>
+    </div>
+
+    <!-- Fri Jun 20 -->
+    <div class="tl-day active-tamarindo">
+      <div class="tl-dow">Fri</div>
+      <div class="tl-date">20</div>
+      <div class="tl-month">Jun 2026</div>
+      <div class="tl-label lbl-tam">Tamarindo</div>
+      <div class="tl-arrow">›</div>
+    </div>
+
+    <!-- Sat Jun 21 – drive day -->
+    <div class="tl-day drive-day">
+      <div class="tl-dow">Sat</div>
+      <div class="tl-date">21</div>
+      <div class="tl-month">Jun 2026</div>
+      <div class="tl-label lbl-drive">Drive Day</div>
+      <div class="tl-arrow">›</div>
+    </div>
+
+    <!-- Sun Jun 22 -->
+    <div class="tl-day active-hermosa">
+      <div class="tl-dow">Sun</div>
+      <div class="tl-date">22</div>
+      <div class="tl-month">Jun 2026</div>
+      <div class="tl-label lbl-herm">Playa Hermosa</div>
+      <div class="tl-arrow">›</div>
+    </div>
+
+    <!-- Mon Jun 23 -->
+    <div class="tl-day active-hermosa">
+      <div class="tl-dow">Mon</div>
+      <div class="tl-date">23</div>
+      <div class="tl-month">Jun 2026</div>
+      <div class="tl-label lbl-herm">Check-out</div>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════
+     MAIN CONTENT
+════════════════════════════════════════ -->
+<main class="container">
+
+  <div class="caveat">
+    <span class="caveat-icon">⚠️</span>
+    <span><strong>Heads up:</strong> Airbnb blocks automated scraping (HTTP 403). Listing data below was compiled from Google snippets and Airbnb category pages — prices are indicative and change by date. <strong>Click any listing link to verify availability, final price, and reviews before booking.</strong> Ratings marked with "est." are category-page averages, not individual listing scores.</span>
+  </div>
+
+  <!-- ═══════════════════════════════
+       LEG 1 — TAMARINDO
+  ════════════════════════════════ -->
+  <div class="section-header">
+    <div class="section-badge badge-tam">🌊</div>
+    <div>
+      <div class="section-title">Leg 1 — Tamarindo, Guanacaste</div>
+      <div class="section-dates">Check-in: Thursday June 19 &nbsp;→&nbsp; Check-out: Saturday June 21 &nbsp;·&nbsp; 2 nights</div>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-row">
+    <div class="stat-card ocean">
+      <div class="stat-label">Nights</div>
+      <div class="stat-value">2</div>
+      <div class="stat-sub">Jun 19 – 21</div>
+    </div>
+    <div class="stat-card jungle">
+      <div class="stat-label">Min Bedrooms</div>
+      <div class="stat-value">2 BR</div>
+      <div class="stat-sub">Required</div>
+    </div>
+    <div class="stat-card sunset">
+      <div class="stat-label">Top Beachfront Price</div>
+      <div class="stat-value">~$950</div>
+      <div class="stat-sub">Per night (est.)</div>
+    </div>
+    <div class="stat-card coral">
+      <div class="stat-label">Area Rating</div>
+      <div class="stat-value">★ 4.9</div>
+      <div class="stat-sub">Avg. Airbnb category</div>
+    </div>
+    <div class="stat-card ocean">
+      <div class="stat-label">Surf Type</div>
+      <div class="stat-value">Beach</div>
+      <div class="stat-sub">Consistent beach break</div>
+    </div>
+  </div>
+
+  <!-- Search Links -->
+  <div class="search-links-grid">
+    <a class="search-link-btn" href="https://www.airbnb.com/s/Tamarindo--Guanacaste--Costa-Rica/homes?checkin=2026-06-19&checkout=2026-06-21&min_bedrooms=2" target="_blank">
+      <div class="btn-icon btn-ocean-bg">🔍</div>Your Exact Search (Jun 19–21, 2BR)
+    </a>
+    <a class="search-link-btn" href="https://www.airbnb.com/tamarindo-costa-rica/stays/beachfront" target="_blank">
+      <div class="btn-icon btn-ocean-bg">🏖️</div>Beachfront Only
+    </a>
+    <a class="search-link-btn" href="https://www.airbnb.com/tamarindo-costa-rica/stays/pools" target="_blank">
+      <div class="btn-icon btn-ocean-bg">🏊</div>Pool Only
+    </a>
+    <a class="search-link-btn" href="https://www.airbnb.com/tamarindo-costa-rica/stays/villas" target="_blank">
+      <div class="btn-icon btn-ocean-bg">🏡</div>Villas
+    </a>
+    <a class="search-link-btn" href="https://www.airbnb.com/tamarindo-costa-rica/stays/luxury" target="_blank">
+      <div class="btn-icon btn-ocean-bg">✨</div>Luxury
+    </a>
+  </div>
+
+  <!-- Listings Table -->
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Listing</th>
+          <th>Est. Price / Night</th>
+          <th>Rating</th>
+          <th>Beach Proximity</th>
+          <th>Pool</th>
+          <th>Size / Config</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="top-pick">
+          <td><div class="rank-badge rank-1">1</div></td>
+          <td>
+            <div class="listing-name"><a href="https://www.airbnb.com/tamarindo-costa-rica/stays/beachfront" target="_blank">Casa Malibu</a></div>
+            <div class="listing-sub">Steps from Tamarindo Beach · Puerta de Sal Beach Club included</div>
+          </td>
+          <td><div class="price-cell">~$950</div><div class="price-est">est. late 2025</div></td>
+          <td><div class="stars">★★★★★</div><div class="reviews">4.9 est.</div></td>
+          <td><span class="tag tag-beach-hot">🏖️ Beachfront</span></td>
+          <td><span class="tag tag-pool-priv">🏊 Private Infinity Pool</span></td>
+          <td>5,000 sq ft · Gym · BBQ · Beach Club</td>
+        </tr>
+        <tr class="top-pick">
+          <td><div class="rank-badge rank-2">2</div></td>
+          <td>
+            <div class="listing-name"><a href="https://www.airbnb.com/tamarindo-costa-rica/stays/beachfront" target="_blank">Tamarindo Preserve Beachfront Villa</a></div>
+            <div class="listing-sub">Beachfront gated community · 2-min walk to water</div>
+          </td>
+          <td><div class="price-cell">—</div><div class="price-est">Verify on Airbnb</div></td>
+          <td><div class="stars">★★★★★</div><div class="reviews">4.8+ est.</div></td>
+          <td><span class="tag tag-beach-hot">🏖️ Beachfront Community</span></td>
+          <td><span class="tag tag-pool-priv">🏊 Private Pool</span></td>
+          <td>2 BR · 2.5 BA · Travertine stone floors</td>
+        </tr>
+        <tr class="top-pick">
+          <td><div class="rank-badge rank-3">3</div></td>
+          <td>
+            <div class="listing-name"><a href="https://www.airbnb.com/rooms/46695600" target="_blank">Modern Villa — Few Steps from Tamarindo Beach</a></div>
+            <div class="listing-sub">Listing ID: rooms/46695600 · Confirmed via search</div>
+          </td>
+          <td><div class="price-cell">~$950</div><div class="price-est">est. — verify</div></td>
+          <td><div class="stars">★★★★★</div><div class="reviews">4.8+ est.</div></td>
+          <td><span class="tag tag-beach-walk">🚶 Few Steps to Beach</span></td>
+          <td><span class="tag tag-pool-priv">🏊 Private Pool</span></td>
+          <td>Verify BR count directly</td>
+        </tr>
+        <tr>
+          <td><div class="rank-badge rank-n">4</div></td>
+          <td>
+            <div class="listing-name"><a href="https://www.airbnb.com/tamarindo-costa-rica/stays/beachfront" target="_blank">Pueblo del Mar #21</a></div>
+            <div class="listing-sub">Renovated condo · Steps from beach</div>
+          </td>
+          <td><div class="price-cell">—</div></td>
+          <td><div class="stars">★★★★★</div><div class="reviews">4.8+ est.</div></td>
+          <td><span class="tag tag-beach-walk">🚶 Steps to Beach</span></td>
+          <td><span class="tag tag-unknown">❓ Likely shared</span></td>
+          <td>2 BR · 1.5 BA · Stainless kitchen</td>
+        </tr>
+        <tr>
+          <td><div class="rank-badge rank-n">5</div></td>
+          <td>
+            <div class="listing-name"><a href="https://www.airbnb.com/tamarindo-costa-rica/stays/villas" target="_blank">Maitri</a></div>
+            <div class="listing-sub">8-min walk · Langosta Beach Club access included</div>
+          </td>
+          <td><div class="price-cell">—</div></td>
+          <td><div class="stars">★★★★★</div><div class="reviews">est.</div></td>
+          <td><span class="tag tag-beach-walk">🚶 8-min Walk</span></td>
+          <td><span class="tag tag-unknown">❓ Unconfirmed</span></td>
+          <td>2 BR · 3 BA · Concierge service</td>
+        </tr>
+        <tr>
+          <td><div class="rank-badge rank-n">6</div></td>
+          <td>
+            <div class="listing-name"><a href="https://www.airbnb.com/tamarindo-costa-rica/stays/villas" target="_blank">VIRYA Ocean View Luxury Getaway</a></div>
+            <div class="listing-sub">10-min walk · Pacific ocean views</div>
+          </td>
+          <td><div class="price-cell">—</div></td>
+          <td><div class="stars">★★★★★</div><div class="reviews">est.</div></td>
+          <td><span class="tag tag-ocean-view">🌊 Ocean View</span></td>
+          <td><span class="tag tag-unknown">❓ Unconfirmed</span></td>
+          <td>2 BR · 3 BA · High-end finishes</td>
+        </tr>
+        <tr>
+          <td><div class="rank-badge rank-n">7</div></td>
+          <td>
+            <div class="listing-name"><a href="https://www.airbnb.com/tamarindo-costa-rica/stays/pools" target="_blank">Casa Shibui SUR</a></div>
+            <div class="listing-sub">9-min walk · Japanese-inspired design</div>
+          </td>
+          <td><div class="price-cell">—</div></td>
+          <td><div class="stars">★★★★★</div><div class="reviews">est.</div></td>
+          <td><span class="tag tag-beach-walk">🚶 9-min Walk</span></td>
+          <td><span class="tag tag-pool-priv">🏊 Private Pool</span></td>
+          <td>3 BR · 3 BA · Unique design</td>
+        </tr>
+        <tr>
+          <td><div class="rank-badge rank-n">8</div></td>
+          <td>
+            <div class="listing-name"><a href="https://www.airbnb.com/tamarindo-costa-rica/stays/pools" target="_blank">Green Villas</a></div>
+            <div class="listing-sub">Private terrace · Pool community</div>
+          </td>
+          <td><div class="price-cell">—</div></td>
+          <td><div class="stars">★★★★★</div><div class="reviews">4.9 est.</div></td>
+          <td><span class="tag tag-unknown">❓ Unconfirmed</span></td>
+          <td><span class="tag tag-pool-share">🏊 Shared Pool</span></td>
+          <td>2 BR · Private terrace</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Top Picks -->
+  <h3 style="font-size:1.1rem; font-weight:800; margin-bottom:16px; color:var(--gray-900);">🏆 Top 3 Picks — Tamarindo</h3>
+  <div class="top-picks">
+    <div class="pick-card">
+      <div class="pick-header pick-1-tam">
+        <div class="pick-medal">🥇</div>
+        <div class="pick-rank">Top Pick #1 · Tamarindo</div>
+        <div class="pick-name">Casa Malibu</div>
+      </div>
+      <div class="pick-body">
+        <p class="pick-reason">Literally on Tamarindo Beach with a private infinity pool, 5,000 sq ft of luxury space, and complimentary Puerta de Sal Beach Club access (run by the acclaimed Pangas Restaurant team). Best combo of true beachfront + private pool + luxury finishes on the market.</p>
+        <div class="pick-tags">
+          <span class="tag tag-beach-hot">🏖️ Beachfront</span>
+          <span class="tag tag-pool-priv">🏊 Infinity Pool</span>
+          <span class="tag tag-ocean-view">🌊 Beach Club</span>
+        </div>
+      </div>
+      <a class="pick-link link-ocean" href="https://www.airbnb.com/tamarindo-costa-rica/stays/beachfront" target="_blank">View on Airbnb →</a>
+    </div>
+
+    <div class="pick-card">
+      <div class="pick-header pick-2-tam">
+        <div class="pick-medal">🥈</div>
+        <div class="pick-rank">Top Pick #2 · Tamarindo</div>
+        <div class="pick-name">Tamarindo Preserve Beachfront Villa</div>
+      </div>
+      <div class="pick-body">
+        <p class="pick-reason">2 BR/2.5 BA inside an exclusive gated beachfront community — 2-min walk to the water, private pool with lush tropical garden and travertine stone floors. Perfect balance of seclusion, security, and beach access for a 2-night surf trip.</p>
+        <div class="pick-tags">
+          <span class="tag tag-beach-hot">🏖️ Beachfront Community</span>
+          <span class="tag tag-pool-priv">🏊 Private Pool</span>
+        </div>
+      </div>
+      <a class="pick-link link-ocean" href="https://www.airbnb.com/tamarindo-costa-rica/stays/beachfront" target="_blank">View on Airbnb →</a>
+    </div>
+
+    <div class="pick-card">
+      <div class="pick-header pick-3-tam">
+        <div class="pick-medal">🥉</div>
+        <div class="pick-rank">Top Pick #3 · Tamarindo</div>
+        <div class="pick-name">Modern Villa — Few Steps from Beach</div>
+      </div>
+      <div class="pick-body">
+        <p class="pick-reason">The one confirmed listing ID found in search results (rooms/46695600). Steps to Tamarindo Beach, private pool, strong ratings. Click the direct link — it'll show exact Jun 19–21 pricing, photos, and verified reviews immediately.</p>
+        <div class="pick-tags">
+          <span class="tag tag-beach-walk">🚶 Steps to Beach</span>
+          <span class="tag tag-pool-priv">🏊 Private Pool</span>
+        </div>
+      </div>
+      <a class="pick-link link-ocean" href="https://www.airbnb.com/rooms/46695600" target="_blank">View Direct Listing →</a>
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════════════
+       DRIVE DAY — JUNE 21
+  ════════════════════════════════ -->
+  <div class="section-header">
+    <div class="section-badge badge-drive">🚗</div>
+    <div>
+      <div class="section-title">Drive Day — Saturday June 21</div>
+      <div class="section-dates">Tamarindo → Playa Hermosa (Puntarenas) &nbsp;·&nbsp; ~3.5 – 4.5 hrs &nbsp;·&nbsp; 220 km</div>
+    </div>
+  </div>
+
+  <div class="drive-card">
+    <div class="drive-header">
+      <div style="font-size:2rem;">🗺️</div>
+      <div>
+        <h3>Tamarindo → Playa Hermosa (near Jacó)</h3>
+        <div class="drive-sub">Depart by 9:00–9:30 AM · Arrive early afternoon · Evening surf session</div>
+      </div>
+    </div>
+    <div class="drive-body">
+      <div class="drive-grid">
+        <div class="drive-stat">
+          <div class="ds-icon">🕘</div>
+          <div class="ds-val">9:00 AM</div>
+          <div class="ds-lbl">Depart by</div>
+        </div>
+        <div class="drive-stat">
+          <div class="ds-icon">📍</div>
+          <div class="ds-val">~220 km</div>
+          <div class="ds-lbl">Distance</div>
+        </div>
+        <div class="drive-stat">
+          <div class="ds-icon">⏱️</div>
+          <div class="ds-val">3.5–4.5 hrs</div>
+          <div class="ds-lbl">Drive time</div>
+        </div>
+        <div class="drive-stat">
+          <div class="ds-icon">🏄</div>
+          <div class="ds-val">~1:00–2:00 PM</div>
+          <div class="ds-lbl">Arrive (target)</div>
+        </div>
+      </div>
+
+      <ul class="drive-steps">
+        <li>
+          <div class="step-dot">1</div>
+          <div><span class="step-time">9:00 AM</span> — Check out Tamarindo. Head south on Route 21 toward Nicoya / Santa Cruz.</div>
+        </li>
+        <li>
+          <div class="step-dot">2</div>
+          <div><span class="step-time">~10:30 AM</span> — Take Route 27 (Caldera Highway, toll road) heading east toward Jacó. <strong>Avoid routing through San José center on a Saturday.</strong></div>
+        </li>
+        <li>
+          <div class="step-dot">3</div>
+          <div><span class="step-time">~11:30 AM</span> — Stop at a roadside <em>soda</em> in Orotina or Atenas for a casado lunch (20–30 min).</div>
+        </li>
+        <li>
+          <div class="step-dot">4</div>
+          <div><span class="step-time">~12:30 PM</span> — Pass Jacó. Playa Hermosa is <strong>3 km south</strong> of Jacó on the coastal road.</div>
+        </li>
+        <li>
+          <div class="step-dot">5</div>
+          <div><span class="step-time">~1:00–1:30 PM</span> — Check in to Playa Hermosa property. Grab boards and hit the water — the World Surfing Reserve is right there.</div>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════════════
+       LEG 2 — PLAYA HERMOSA
+  ════════════════════════════════ -->
+  <div class="section-header">
+    <div class="section-badge badge-herm">🌿</div>
+    <div>
+      <div class="section-title">Leg 2 — Playa Hermosa, Puntarenas (near Jacó)</div>
+      <div class="section-dates">Check-in: Saturday June 21 &nbsp;→&nbsp; Check-out: Monday June 23 &nbsp;·&nbsp; 2 nights &nbsp;·&nbsp; 🏄 World Surfing Reserve</div>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-row">
+    <div class="stat-card jungle">
+      <div class="stat-label">Nights</div>
+      <div class="stat-value">2</div>
+      <div class="stat-sub">Jun 21 – 23</div>
+    </div>
+    <div class="stat-card ocean">
+      <div class="stat-label">Min Bedrooms</div>
+      <div class="stat-value">2 BR</div>
+      <div class="stat-sub">Required</div>
+    </div>
+    <div class="stat-card sunset">
+      <div class="stat-label">Luxury Price (est.)</div>
+      <div class="stat-value">~$1,300</div>
+      <div class="stat-sub">Hermosa Villa / night</div>
+    </div>
+    <div class="stat-card coral">
+      <div class="stat-label">Area Rating</div>
+      <div class="stat-value">★ 5.0</div>
+      <div class="stat-sub">Top listings category</div>
+    </div>
+    <div class="stat-card jungle">
+      <div class="stat-label">Surf Type</div>
+      <div class="stat-value">Point</div>
+      <div class="stat-sub">World Surfing Reserve</div>
+    </div>
+  </div>
+
+  <!-- Search Links -->
+  <div class="search-links-grid">
+    <a class="search-link-btn" href="https://www.airbnb.com/s/Playa-Hermosa--Puntarenas--Costa-Rica/homes?checkin=2026-06-21&checkout=2026-06-23&min_bedrooms=2" target="_blank">
+      <div class="btn-icon btn-jungle-bg">🔍</div>Your Exact Search (Jun 21–23, 2BR)
+    </a>
+    <a class="search-link-btn" href="https://www.airbnb.com/playa-hermosa-puntarenas-province-costa-rica/stays/beachfront" target="_blank">
+      <div class="btn-icon btn-jungle-bg">🏖️</div>Beachfront Only
+    </a>
+    <a class="search-link-btn" href="https://www.airbnb.com/playa-hermosa-puntarenas-province-costa-rica/stays/pools" target="_blank">
+      <div class="btn-icon btn-jungle-bg">🏊</div>Pool Only
+    </a>
+    <a class="search-link-btn" href="https://www.airbnb.com/playa-hermosa-puntarenas-province-costa-rica/stays/villas" target="_blank">
+      <div class="btn-icon btn-jungle-bg">🏡</div>Villas
+    </a>
+    <a class="search-link-btn" href="https://www.airbnb.com/playa-hermosa-puntarenas-province-costa-rica/stays/houses" target="_blank">
+      <div class="btn-icon btn-jungle-bg">🌿</div>Beach Houses
+    </a>
+  </div>
+
+  <!-- Listings Table -->
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Listing</th>
+          <th>Est. Price / Night</th>
+          <th>Rating</th>
+          <th>Beach Proximity</th>
+          <th>Pool</th>
+          <th>Size / Config</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="top-pick">
+          <td><div class="rank-badge rank-1">1</div></td>
+          <td>
+            <div class="listing-name"><a href="https://www.airbnb.com/rooms/30655241" target="_blank">Villa Playa Hermosa</a></div>
+            <div class="listing-sub">Right on the beach · Surfer's dream · rooms/30655241</div>
+          </td>
+          <td><div class="price-cell">—</div><div class="price-est">Verify on Airbnb</div></td>
+          <td><div class="stars">★★★★★</div><div class="reviews">5.0 · 3 reviews</div></td>
+          <td><span class="tag tag-beach-hot">🏖️ RIGHT on the Beach</span></td>
+          <td><span class="tag tag-pool-priv">🏊 Private Pool + Patio</span></td>
+          <td>3,100 sq ft · 2 Master Suites + 2 Guest BR · Personal chef bookable</td>
+        </tr>
+        <tr class="top-pick">
+          <td><div class="rank-badge rank-2">2</div></td>
+          <td>
+            <div class="listing-name"><a href="https://www.airbnb.com/playa-hermosa-puntarenas-province-costa-rica/stays/beachfront" target="_blank">2 BR Luxury Beachfront Casa – Rooftop Cocktail Pool</a></div>
+            <div class="listing-sub">Ocean views every floor · Rooftop balcony · Steps to downtown</div>
+          </td>
+          <td><div class="price-cell">—</div><div class="price-est">Verify on Airbnb</div></td>
+          <td><div class="stars">★★★★★</div><div class="reviews">4.9 est.</div></td>
+          <td><span class="tag tag-beach-hot">🏖️ Beachfront</span></td>
+          <td><span class="tag tag-pool-priv">🏊 Rooftop Cocktail Pool</span></td>
+          <td>2 BR · Ensuite bathrooms · Full kitchen</td>
+        </tr>
+        <tr class="top-pick">
+          <td><div class="rank-badge rank-3">3</div></td>
+          <td>
+            <div class="listing-name"><a href="https://www.airbnb.com/rooms/27057848" target="_blank">Jaco Villa – Infinity Pool &amp; Grotto</a></div>
+            <div class="listing-sub">Near Playa Hermosa surf break · rooms/27057848</div>
+          </td>
+          <td><div class="price-cell">—</div><div class="price-est">Verify on Airbnb</div></td>
+          <td><div class="stars">★★★★★</div><div class="reviews">est.</div></td>
+          <td><span class="tag tag-beach-walk">🚶 Near Surf Break</span></td>
+          <td><span class="tag tag-pool-priv">🏊 Infinity Pool + Grotto</span></td>
+          <td>Verify BR count directly</td>
+        </tr>
+        <tr>
+          <td><div class="rank-badge rank-n">4</div></td>
+          <td>
+            <div class="listing-name"><a href="https://www.airbnb.com/playa-hermosa-puntarenas-province-costa-rica/stays/beachfront" target="_blank">Macaws Ocean Club 8</a></div>
+            <div class="listing-sub">Private beach access · Gated 24hr security · rooms/23573407</div>
+          </td>
+          <td><div class="price-cell">—</div></td>
+          <td><div class="stars">★★★★★</div><div class="reviews">4.9 est.</div></td>
+          <td><span class="tag tag-beach-hot">🏖️ Private Beach Access</span></td>
+          <td><span class="tag tag-pool-share">🏊 Shared Pool</span></td>
+          <td>2 BR · 3 BA · Tempurpedic beds · Colorful tropical style</td>
+        </tr>
+        <tr>
+          <td><div class="rank-badge rank-n">5</div></td>
+          <td>
+            <div class="listing-name"><a href="https://www.airbnb.com/rooms/30012702" target="_blank">Spectacular Ocean View – Playa Hermosa</a></div>
+            <div class="listing-sub">rooms/30012702 · Confirmed listing ID</div>
+          </td>
+          <td><div class="price-cell">—</div></td>
+          <td><div class="stars">★★★★☆</div><div class="reviews">est.</div></td>
+          <td><span class="tag tag-ocean-view">🌊 Spectacular Ocean View</span></td>
+          <td><span class="tag tag-unknown">❓ Unconfirmed</span></td>
+          <td>Verify on listing page</td>
+        </tr>
+        <tr>
+          <td><div class="rank-badge rank-n">6</div></td>
+          <td>
+            <div class="listing-name"><a href="https://www.airbnb.com/rooms/53645190" target="_blank">Hermosa Villa – Luxury Oceanfront Pool + Jacuzzi</a></div>
+            <div class="listing-sub">rooms/53645190 · 18-ft ceilings · Indoor bar · Jacuzzi</div>
+          </td>
+          <td><div class="price-cell">~$1,300</div><div class="price-est">est. late 2025</div></td>
+          <td><div class="stars">★★★★★</div><div class="reviews">est.</div></td>
+          <td><span class="tag tag-beach-hot">🏖️ Oceanfront</span></td>
+          <td><span class="tag tag-pool-priv">🏊 Private Pool + Jacuzzi</span></td>
+          <td>5 Master Suites (exceeds 2BR min) · Indoor bar</td>
+        </tr>
+        <tr>
+          <td><div class="rank-badge rank-n">7</div></td>
+          <td>
+            <div class="listing-name"><a href="https://www.airbnb.com/playa-hermosa-puntarenas-province-costa-rica/stays/pools" target="_blank">Peaceful 2 BR Home w/ Private Pool</a></div>
+            <div class="listing-sub">Walking distance to beach · A/C · Safe parking</div>
+          </td>
+          <td><div class="price-cell">—</div></td>
+          <td><div class="stars">★★★★☆</div><div class="reviews">est.</div></td>
+          <td><span class="tag tag-beach-walk">🚶 Walking Distance</span></td>
+          <td><span class="tag tag-pool-priv">🏊 Private Pool</span></td>
+          <td>2 BR · A/C · Workspace · Budget-friendlier</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Top Picks -->
+  <h3 style="font-size:1.1rem; font-weight:800; margin-bottom:16px; color:var(--gray-900);">🏆 Top 3 Picks — Playa Hermosa (Puntarenas)</h3>
+  <div class="top-picks">
+    <div class="pick-card">
+      <div class="pick-header pick-1-herm">
+        <div class="pick-medal">🥇</div>
+        <div class="pick-rank">Top Pick #1 · Playa Hermosa</div>
+        <div class="pick-name">Villa Playa Hermosa</div>
+      </div>
+      <div class="pick-body">
+        <p class="pick-reason">Built for surfers — literally sitting on Playa Hermosa (the World Surfing Reserve of Latin America). 3,100 sq ft, 2 master suites + 2 guest bedrooms, private pool with patio, ocean views, personal chef bookable, and host arranges surf tours. ★5.0. Only caveat: newer listing with 3 reviews — read them and message the host before booking.</p>
+        <div class="pick-tags">
+          <span class="tag tag-beach-hot">🏖️ On the Beach</span>
+          <span class="tag tag-pool-priv">🏊 Private Pool</span>
+          <span class="tag tag-beach-hot">🏄 Surf Reserve</span>
+        </div>
+      </div>
+      <a class="pick-link link-jungle" href="https://www.airbnb.com/rooms/30655241" target="_blank">View Direct Listing →</a>
+    </div>
+
+    <div class="pick-card">
+      <div class="pick-header pick-2-herm">
+        <div class="pick-medal">🥈</div>
+        <div class="pick-rank">Top Pick #2 · Playa Hermosa</div>
+        <div class="pick-name">2 BR Luxury Beachfront Casa</div>
+      </div>
+      <div class="pick-body">
+        <p class="pick-reason">Every single floor has Pacific Ocean views, rooftop cocktail pool + private sunset balcony, ensuite bathrooms throughout, and walking distance to Playa Hermosa restaurants. Best luxury experience on the beachfront if Villa Playa Hermosa isn't available.</p>
+        <div class="pick-tags">
+          <span class="tag tag-beach-hot">🏖️ Beachfront</span>
+          <span class="tag tag-pool-priv">🏊 Rooftop Pool</span>
+          <span class="tag tag-ocean-view">🌊 Ocean Views Every Floor</span>
+        </div>
+      </div>
+      <a class="pick-link link-jungle" href="https://www.airbnb.com/playa-hermosa-puntarenas-province-costa-rica/stays/beachfront" target="_blank">View on Airbnb →</a>
+    </div>
+
+    <div class="pick-card">
+      <div class="pick-header pick-3-herm">
+        <div class="pick-medal">🥉</div>
+        <div class="pick-rank">Top Pick #3 · Playa Hermosa</div>
+        <div class="pick-name">Jaco Villa — Infinity Pool &amp; Grotto</div>
+      </div>
+      <div class="pick-body">
+        <p class="pick-reason">Infinity pool plus a grotto makes for a spectacular after-surf hang. Near the Playa Hermosa surf break. Confirm beach proximity and exact bedroom count directly — the photos alone are worth opening this listing.</p>
+        <div class="pick-tags">
+          <span class="tag tag-beach-walk">🚶 Near Surf Break</span>
+          <span class="tag tag-pool-priv">🏊 Infinity Pool + Grotto</span>
+        </div>
+      </div>
+      <a class="pick-link link-jungle" href="https://www.airbnb.com/rooms/27057848" target="_blank">View Direct Listing →</a>
+    </div>
+  </div>
+
+</main>
+
+<!-- FOOTER -->
+<footer class="footer">
+  Costa Rica Surf Trip Dashboard &nbsp;·&nbsp; June 19–23, 2026 &nbsp;·&nbsp; Tamarindo + Playa Hermosa (Puntarenas)
+  <br>All listing data compiled from Airbnb search snippets. Prices and availability subject to change — verify directly on Airbnb before booking.
+</footer>
+
+</body>
+</html>
