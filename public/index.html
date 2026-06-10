@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>✈ NYC → London Flight Scanner</title>
+  <link rel="stylesheet" href="/css/style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-left">
+    <h1>
+      ✈ NYC → LONDON SCANNER
+      <span class="live-badge"><span class="live-dot"></span> LIVE</span>
+    </h1>
+    <p>EWR / JFK → LHR / LGW &nbsp;·&nbsp; Aug 13–23, 2026 &nbsp;·&nbsp; Economy &nbsp;·&nbsp; 1 Adult</p>
+  </div>
+  <div class="header-right">
+    <div class="scan-info">
+      <div>Last scan: <strong id="last-scan-time">—</strong></div>
+      <div>Next in: <strong id="countdown">—</strong></div>
+    </div>
+    <button class="btn" id="scan-now-btn" onclick="triggerScan()">⟳ Scan Now</button>
+  </div>
+</header>
+
+<div class="container">
+
+  <div id="source-banner" class="source-banner" style="display:none;"></div>
+
+  <!-- Top Picks -->
+  <div class="top-picks">
+    <div class="pick-card cheapest">
+      <span class="pick-label">💚 Cheapest Cash</span>
+      <span class="pick-airline" id="pick-cheap-airline">—</span>
+      <span class="pick-price" id="pick-cheap-price">—</span>
+      <span class="pick-detail" id="pick-cheap-detail">—</span>
+    </div>
+    <div class="pick-card best-value">
+      <span class="pick-label">⭐ Best Nonstop EWR</span>
+      <span class="pick-airline" id="pick-value-airline">—</span>
+      <span class="pick-price amber" id="pick-value-price">—</span>
+      <span class="pick-detail" id="pick-value-detail">—</span>
+    </div>
+    <div class="pick-card miles-pick">
+      <span class="pick-label">🎯 Miles Recommendation</span>
+      <span class="pick-airline" id="pick-miles-airline">American Airlines</span>
+      <span class="pick-price red" id="pick-miles-price">~32,000 mi RT</span>
+      <span class="pick-detail" id="pick-miles-detail">Check AA.com for saver space</span>
+    </div>
+  </div>
+
+  <!-- Alliance Tabs -->
+  <div class="tabs" id="tabs">
+    <div class="tab active" data-alliance="all" onclick="filterByAlliance('all', this)">All <span class="count" id="count-all"></span></div>
+    <div class="tab" data-alliance="Oneworld" onclick="filterByAlliance('Oneworld', this)">✦ Oneworld <span class="count" id="count-oneworld"></span></div>
+    <div class="tab" data-alliance="SkyTeam" onclick="filterByAlliance('SkyTeam', this)">◈ SkyTeam <span class="count" id="count-skyteam"></span></div>
+    <div class="tab" data-alliance="Star Alliance" onclick="filterByAlliance('Star Alliance', this)">★ Star Alliance <span class="count" id="count-star"></span></div>
+    <div class="tab" data-alliance="None" onclick="filterByAlliance('None', this)">◇ Budget / Other <span class="count" id="count-none"></span></div>
+  </div>
+
+  <!-- Flight Table -->
+  <div class="table-wrap">
+    <table id="flight-table">
+      <thead>
+        <tr>
+          <th onclick="sortTable('airline')">Airline <span class="sort-icon">↕</span></th>
+          <th onclick="sortTable('alliance')">Alliance <span class="sort-icon">↕</span></th>
+          <th onclick="sortTable('origin')">Route <span class="sort-icon">↕</span></th>
+          <th onclick="sortTable('outboundDeparture')">Departs <span class="sort-icon">↕</span></th>
+          <th onclick="sortTable('stops')">Stops <span class="sort-icon">↕</span></th>
+          <th onclick="sortTable('aircraft')">Aircraft <span class="sort-icon">↕</span></th>
+          <th onclick="sortTable('price')">RT Price <span class="sort-icon">↕</span></th>
+          <th>Book</th>
+        </tr>
+      </thead>
+      <tbody id="flight-tbody">
+        <tr><td colspan="8" style="text-align:center;padding:30px;color:var(--text-muted)">Loading flights…</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Bottom Grid: Chart + Miles Calc -->
+  <div class="bottom-grid">
+    <div class="card">
+      <h3>📈 Price History (7 days)</h3>
+      <div class="chart-container">
+        <canvas id="price-chart"></canvas>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>🎫 AAdvantage Miles Calculator</h3>
+      <div class="calc-row">
+        <div class="calc-field">
+          <label>Your miles balance</label>
+          <input type="number" id="miles-input" value="68000" min="0" step="1000" oninput="calcMiles()" />
+        </div>
+        <div class="calc-field">
+          <label>Target route</label>
+          <select id="miles-route" onchange="calcMiles()">
+            <option value="AA106">AA — JFK→LHR nonstop (777-300ER)</option>
+            <option value="BA178">BA — EWR→LHR nonstop (787-9)</option>
+            <option value="BA175">BA — JFK→LHR nonstop (777-200)</option>
+          </select>
+        </div>
+      </div>
+      <div class="calc-result" id="calc-result">
+        <div class="calc-result-row"><span class="label">Miles needed (RT peak)</span><span class="val amber" id="calc-miles-needed">~35,000</span></div>
+        <div class="calc-result-row"><span class="label">Your balance</span><span class="val" id="calc-balance">68,000</span></div>
+        <div class="calc-result-row"><span class="label">Cash price comparison</span><span class="val" id="calc-cash">—</span></div>
+        <div class="calc-result-row"><span class="label">Value per mile</span><span class="val green" id="calc-cpp">—</span></div>
+        <div class="miles-verdict yes" id="miles-verdict">✅ You have enough miles for this trip!</div>
+      </div>
+      <p style="font-size:11px;color:var(--text-dim);margin-top:10px;">
+        ⚠ Aug is peak season. AA uses dynamic pricing — actual miles may vary. Check aa.com/en-us/miles-finder-map for live availability.
+        BA awards via AA miles carry fuel surcharges (~$300–400).
+      </p>
+    </div>
+  </div>
+
+  <!-- Alerts Log -->
+  <div class="card alerts-card">
+    <h3>🔔 Price Alert Log</h3>
+    <div id="alerts-log"><div class="alerts-empty">No price changes detected yet — alerts appear after the second scan.</div></div>
+  </div>
+
+</div>
+
+<div id="toast"></div>
+
+<script src="/js/app.js"></script>
+</body>
+</html>
