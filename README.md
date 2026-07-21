@@ -18,9 +18,10 @@ A live dashboard for watching your 401(k) / portfolio movements and seeing what 
 
 ## Your holdings
 
-The app ships with a **placeholder** $58,000 401(k) mix. These are *not* your real funds —
-they're a realistic stand-in. Replace them with your actual allocation from your 401(k)
-statement via the **"Edit holdings"** button (or by editing `data/holdings.json`).
+The app is seeded with the real 401(k) allocation from the statement dated Jan 1 – Jul 20,
+2026 (closing balances, **$58,558.27**, 100% equity — no bonds). Because the underlying
+BlackRock/SSgA collective trusts have no public ticker, each fund uses a comparable ETF as a
+live-price proxy. Adjust anything via the **"Edit holdings"** button (or `data/holdings.json`).
 
 Each holding has:
 - `value` — dollars invested in that fund

@@ -7,67 +7,64 @@ const HOLDINGS_FILE = path.join(DATA_DIR, 'holdings.json');
 if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
 
 /*
- * Seed 401(k) allocation totalling $58,000.
+ * 401(k) allocation from the statement dated Jan 1 - Jul 20, 2026
+ * (closing balances, total $58,558.27). This portfolio is 100% equity — there
+ * is no bond / fixed-income position.
  *
- * NOTE: These rows are a realistic PLACEHOLDER mix, not the exact funds from the
- * "401K Mix" screenshot (the Gmail connector in this environment cannot download
- * attachment images, so the exact holdings could not be read). Replace the rows
- * below — via the dashboard's "Edit holdings" panel or by editing
- * data/holdings.json — with the actual funds and dollar amounts. Everything else
- * (live movement, day P/L, expected gains) recomputes automatically.
- *
- * Each holding stores the dollar value invested plus a liquid `ticker` used only
- * as a live-price proxy for that asset class, and a long-run expected annual
- * return assumption used for the projection math.
+ * Each holding stores the dollar value invested plus a liquid `ticker` used as a
+ * live-price proxy for that fund's asset class (the underlying BlackRock/SSgA
+ * collective trusts have no public ticker, so a comparable ETF stands in for
+ * live movement tracking), and a long-run expected annual return assumption used
+ * for the projection math. Edit these via the dashboard or data/holdings.json.
  */
 const SEED_HOLDINGS = [
   {
-    id: 'us-total',
-    name: 'US Total Market Index',
-    ticker: 'vti.us',
-    assetClass: 'US Equity',
-    value: 26100,
+    id: 'sp500',
+    name: 'S&P 500 Index — SSgA',
+    ticker: 'spy.us',
+    assetClass: 'US Large Cap',
+    value: 29279.14,
     expectedReturn: 0.075,
   },
   {
-    id: 'us-growth',
-    name: 'US Large-Cap Growth Index',
-    ticker: 'vug.us',
-    assetClass: 'US Equity',
-    value: 8700,
+    id: 'lc-value',
+    name: 'Lrg Cap Value Eq Idx — BlackRock',
+    ticker: 'ive.us',
+    assetClass: 'US Large Cap',
+    value: 5855.83,
+    expectedReturn: 0.075,
+  },
+  {
+    id: 'mid-cap',
+    name: 'Mid Cap Eq Index — SSgA',
+    ticker: 'ijh.us',
+    assetClass: 'US Mid Cap',
+    value: 5855.83,
     expectedReturn: 0.08,
   },
   {
-    id: 'intl-dev',
-    name: 'International Developed Markets',
-    ticker: 'vea.us',
-    assetClass: 'Intl Equity',
-    value: 8700,
+    id: 'small-cap',
+    name: 'Small Cap Eq Index — SSgA',
+    ticker: 'ijr.us',
+    assetClass: 'US Small Cap',
+    value: 4684.66,
+    expectedReturn: 0.085,
+  },
+  {
+    id: 'intl',
+    name: 'Intl Equity Index — BlackRock',
+    ticker: 'efa.us',
+    assetClass: 'International',
+    value: 9954.90,
     expectedReturn: 0.065,
   },
   {
     id: 'emerging',
-    name: 'Emerging Markets',
-    ticker: 'vwo.us',
-    assetClass: 'Intl Equity',
-    value: 4640,
+    name: 'Emerging Markets Index — SSgA',
+    ticker: 'eem.us',
+    assetClass: 'Emerging Mkts',
+    value: 2927.91,
     expectedReturn: 0.085,
-  },
-  {
-    id: 'bonds',
-    name: 'US Total Bond Market',
-    ticker: 'bnd.us',
-    assetClass: 'Fixed Income',
-    value: 6960,
-    expectedReturn: 0.04,
-  },
-  {
-    id: 'financials',
-    name: 'Financials Sector (company stock)',
-    ticker: 'xlf.us',
-    assetClass: 'US Equity',
-    value: 2900,
-    expectedReturn: 0.08,
   },
 ];
 
