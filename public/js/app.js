@@ -1,403 +1,186 @@
-let allFlights = [];
-let filteredFlights = [];
-let activeAlliance = 'all';
-let sortKey = 'price';
-let sortAsc = true;
-let priceChart = null;
-let countdownVal = 1800;
-let countdownTimer = null;
-let previousPrices = {};
-let alertLog = [];
+const PALETTE = ['#4f8cff', '#26d07c', '#f0b429', '#c77dff', '#ff8fab', '#5bd1d7', '#f0616d'];
 
-const ALLIANCE_CLASS = {
-  'Oneworld': 'oneworld',
-  'SkyTeam': 'skyteam',
-  'Star Alliance': 'star',
-  'None': 'none',
-};
+const fmtUSD = (n, dp = 0) =>
+  n == null || Number.isNaN(n)
+    ? '—'
+    : n.toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: dp, maximumFractionDigits: dp });
+const fmtPct = (n, dp = 2) => (n == null || Number.isNaN(n) ? '—' : `${(n * 100).toFixed(dp)}%`);
+const signed = (n, fn) => `${n >= 0 ? '+' : ''}${fn(n)}`;
 
-const MILES_DATA = {
-  AA106: { milesRT: 35000, flightId: 'AA106' },
-  BA178: { milesRT: 30000, flightId: 'BA178' },
-  BA175: { milesRT: 30000, flightId: 'BA175' },
-};
+let holdingsCache = [];
 
-// ── Initialise ──────────────────────────────────────────────────────────────
-
-async function init() {
-  await fetchFlights();
-  connectSSE();
-  fetchHistory();
-  calcMiles();
-  startCountdown(1800);
-}
-
-// ── Data fetch ──────────────────────────────────────────────────────────────
-
-async function fetchFlights() {
-  try {
-    const res = await fetch('/api/flights');
-    const data = await res.json();
-    applyData(data);
-  } catch (e) {
-    console.error('fetchFlights error', e);
-  }
-}
-
-function applyData(data) {
-  allFlights = data.flights || [];
-  const newAlerts = data.alerts || [];
-  const source = data.source || 'mock';
-
-  updateSourceBanner(source);
-  updateLastScanTime(data.scannedAt);
-  renderTopPicks();
-  applyFilter();
-  renderAlerts(newAlerts);
-  resetCountdown(data.nextScanIn || 1800);
-
-  // Track price changes for visual indicators
-  const newPrices = {};
-  allFlights.forEach(f => { newPrices[f.id] = f.price; });
-  previousPrices = newPrices;
-}
-
-// ── SSE ──────────────────────────────────────────────────────────────────────
-
-function connectSSE() {
-  const es = new EventSource('/events');
-  es.addEventListener('scan-complete', e => {
-    const data = JSON.parse(e.data);
-    showToast(`✈ Scan complete — ${data.flights.length} flights updated`);
-    document.title = '(NEW SCAN) ✈ NYC → London Flight Scanner';
-    setTimeout(() => { document.title = '✈ NYC → London Flight Scanner'; }, 3000);
-    applyData(data);
-    fetchHistory();
-  });
-  es.onerror = () => setTimeout(connectSSE, 5000);
-}
-
-// ── Manual scan ──────────────────────────────────────────────────────────────
-
-async function triggerScan() {
-  const btn = document.getElementById('scan-now-btn');
-  btn.textContent = '⟳ Scanning…';
-  btn.classList.add('scanning');
-  try {
-    const res = await fetch('/api/scan', { method: 'POST' });
-    const data = await res.json();
-    if (data.ok) await fetchFlights();
-  } catch (e) {
-    console.error(e);
-  }
-  btn.textContent = '⟳ Scan Now';
-  btn.classList.remove('scanning');
-}
-
-// ── Countdown ────────────────────────────────────────────────────────────────
-
-function startCountdown(seconds) {
-  countdownVal = seconds;
-  if (countdownTimer) clearInterval(countdownTimer);
-  countdownTimer = setInterval(() => {
-    countdownVal--;
-    if (countdownVal <= 0) countdownVal = 1800;
-    document.getElementById('countdown').textContent = fmtCountdown(countdownVal);
-  }, 1000);
-  document.getElementById('countdown').textContent = fmtCountdown(countdownVal);
-}
-
-function resetCountdown(seconds) { startCountdown(seconds); }
-
-function fmtCountdown(s) {
-  const m = Math.floor(s / 60).toString().padStart(2, '0');
-  const sec = (s % 60).toString().padStart(2, '0');
-  return `${m}:${sec}`;
-}
-
-// ── Rendering ────────────────────────────────────────────────────────────────
-
-function updateSourceBanner(source) {
-  const el = document.getElementById('source-banner');
-  if (source === 'amadeus') {
-    el.className = 'source-banner live';
-    el.textContent = '✅ Live data from Amadeus Flight Offers API';
-  } else {
-    el.className = 'source-banner';
-    el.textContent = '⚠ Using realistic mock data. Add AMADEUS_CLIENT_ID to .env for live prices.';
-  }
-  el.style.display = 'flex';
-}
-
-function updateLastScanTime(iso) {
-  if (!iso) return;
-  const d = new Date(iso);
-  document.getElementById('last-scan-time').textContent = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-}
-
-function renderTopPicks() {
-  if (!allFlights.length) return;
-
-  const sorted = [...allFlights].sort((a, b) => a.price - b.price);
-  const cheapest = sorted[0];
-  document.getElementById('pick-cheap-airline').textContent = cheapest.airline;
-  document.getElementById('pick-cheap-price').textContent = `$${cheapest.price.toLocaleString()} RT`;
-  document.getElementById('pick-cheap-detail').textContent = `${cheapest.origin}→${cheapest.destination} · ${cheapest.stops === 0 ? 'Nonstop' : `Via ${cheapest.stopAirport}`}`;
-
-  const ewrNonstop = allFlights.filter(f => f.origin === 'EWR' && f.stops === 0).sort((a, b) => a.price - b.price);
-  if (ewrNonstop.length) {
-    const best = ewrNonstop[0];
-    document.getElementById('pick-value-airline').textContent = best.airline;
-    document.getElementById('pick-value-price').textContent = `$${best.price.toLocaleString()} RT`;
-    document.getElementById('pick-value-detail').textContent = `${best.aircraft} · ${fmtTime(best.outboundDeparture)} depart`;
-  }
-}
-
-function filterByAlliance(alliance, tabEl) {
-  activeAlliance = alliance;
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  tabEl.classList.add('active');
-  applyFilter();
-}
-
-function applyFilter() {
-  filteredFlights = activeAlliance === 'all'
-    ? [...allFlights]
-    : allFlights.filter(f => f.alliance === activeAlliance);
-
-  updateTabCounts();
-  sortAndRender();
-}
-
-function updateTabCounts() {
-  const counts = { all: allFlights.length, Oneworld: 0, SkyTeam: 0, 'Star Alliance': 0, None: 0 };
-  allFlights.forEach(f => { if (counts[f.alliance] !== undefined) counts[f.alliance]++; });
-  document.getElementById('count-all').textContent = counts.all;
-  document.getElementById('count-oneworld').textContent = counts.Oneworld;
-  document.getElementById('count-skyteam').textContent = counts.SkyTeam;
-  document.getElementById('count-star').textContent = counts['Star Alliance'];
-  document.getElementById('count-none').textContent = counts.None;
-}
-
-function sortTable(key) {
-  if (sortKey === key) { sortAsc = !sortAsc; } else { sortKey = key; sortAsc = true; }
-  // Update sort icons
-  document.querySelectorAll('thead th').forEach(th => th.classList.remove('sorted'));
-  event.currentTarget.classList.add('sorted');
-  sortAndRender();
-}
-
-function sortAndRender() {
-  const sorted = [...filteredFlights].sort((a, b) => {
-    let va = a[sortKey], vb = b[sortKey];
-    if (typeof va === 'string') va = va.toLowerCase();
-    if (typeof vb === 'string') vb = vb.toLowerCase();
-    if (va < vb) return sortAsc ? -1 : 1;
-    if (va > vb) return sortAsc ? 1 : -1;
-    return 0;
-  });
-
-  const cheapestId = allFlights.length ? [...allFlights].sort((a, b) => a.price - b.price)[0].id : null;
-  renderTable(sorted, cheapestId);
-}
-
-function renderTable(flights, cheapestId) {
-  const tbody = document.getElementById('flight-tbody');
-  if (!flights.length) {
-    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:30px;color:var(--text-muted)">No flights match this filter.</td></tr>';
+async function loadPortfolio() {
+  const res = await fetch('/api/portfolio');
+  const data = await res.json();
+  if (data.ready === false) {
+    setTimeout(loadPortfolio, 1500);
     return;
   }
-
-  tbody.innerHTML = flights.map(f => {
-    const allianceClass = ALLIANCE_CLASS[f.alliance] || 'none';
-    const isCheapest = f.id === cheapestId;
-    const changeHtml = f._change ? `<span class="price-change ${f._change > 0 ? 'up' : 'down'}">${f._change > 0 ? '▲' : '▼'}$${Math.abs(f._change)}</span>` : '';
-    const warnHtml = f.warning ? `<span class="warn-badge" title="Financial uncertainty — purchase travel insurance">⚠ Risk</span>` : '';
-
-    return `<tr class="${isCheapest ? 'cheapest-row' : ''}">
-      <td>
-        <div class="airline-cell">
-          <div class="airline-logo ${allianceClass}">${f.iataCode}</div>
-          <div>
-            <div class="airline-name">${f.airline} ${warnHtml}</div>
-            <div class="flight-id">${f.id}</div>
-          </div>
-        </div>
-      </td>
-      <td><span class="alliance-badge badge-${allianceClass}">${f.alliance}</span></td>
-      <td>
-        <div class="route-cell">${f.origin} → ${f.destination}</div>
-        <div class="route-sub">${f.stops === 0 ? 'Nonstop' : `1 stop ${f.stopAirport}`}</div>
-      </td>
-      <td>
-        <div class="time-cell">${fmtTime(f.outboundDeparture)}</div>
-        <div class="time-sub">→ ${fmtTime(f.outboundArrival)} ${f.stops === 0 ? '+1' : '+1'}</div>
-      </td>
-      <td>
-        ${f.stops === 0
-          ? '<span class="nonstop">✦ Nonstop</span>'
-          : `<span class="connecting">1 stop · ${f.stopAirport}</span>`}
-      </td>
-      <td class="aircraft-cell">${f.aircraft}</td>
-      <td class="price-cell">
-        <span class="price-value">$${f.price.toLocaleString()}</span>${changeHtml}
-        <div style="font-size:11px;color:var(--text-dim)">round trip</div>
-        ${f.awardsAvailable ? `<div style="font-size:11px;color:#c0392b;margin-top:2px">🎫 ~${(f.estimatedMiles||30000).toLocaleString()} mi</div>` : ''}
-      </td>
-      <td><a class="book-btn" href="${f.bookingUrl}" target="_blank" rel="noopener">Book →</a></td>
-    </tr>`;
-  }).join('');
+  render(data);
 }
 
-// ── Price History Chart ───────────────────────────────────────────────────────
+function render(data) {
+  const t = data.totals;
 
-async function fetchHistory() {
-  try {
-    const res = await fetch('/api/history');
-    const series = await res.json();
-    renderChart(series);
-  } catch (e) {
-    console.error('history fetch error', e);
+  // Source badge + timestamp
+  const badge = document.getElementById('source-badge');
+  badge.textContent = data.source === 'stooq' ? '● Live' : '● Mock data';
+  badge.className = `badge ${data.source === 'stooq' ? 'live' : 'mock'}`;
+  document.getElementById('last-scan').textContent =
+    data.scannedAt ? `Updated ${new Date(data.scannedAt).toLocaleTimeString()}` : '';
+
+  // KPIs
+  document.getElementById('total-value').textContent = fmtUSD(t.value);
+  const dc = document.getElementById('day-change');
+  dc.textContent = `${signed(t.dayChange, v => fmtUSD(v))}  (${signed(t.dayChangePct, fmtPct)}) today`;
+  dc.className = `kpi-delta ${t.dayChange >= 0 ? 'pos' : 'neg'}`;
+
+  document.getElementById('annual-gain').textContent = signed(t.expectedAnnualGain, v => fmtUSD(v));
+  document.getElementById('blended-return').textContent =
+    `Blended expected return ${fmtPct(t.blendedExpectedReturn)}/yr`;
+
+  const p10 = data.projections.find(p => p.years === 10);
+  if (p10) {
+    document.getElementById('proj-10').textContent = fmtUSD(p10.projectedValue);
+    document.getElementById('proj-10-gain').textContent = `${signed(p10.expectedGain, v => fmtUSD(v))} expected gain`;
   }
+
+  renderHoldings(data.positions);
+  renderAllocation(data.allocation);
+  renderProjection(data.projections);
 }
 
-const PALETTE = ['#e74c3c','#3498db','#2ecc71','#f39c12','#9b59b6','#1abc9c','#e67e22','#34495e','#e91e63','#00bcd4'];
+function renderHoldings(positions) {
+  const body = document.getElementById('holdings-body');
+  body.innerHTML = positions.map(p => `
+    <tr>
+      <td>
+        <div class="holding-name">${escapeHtml(p.name)}</div>
+        <div class="holding-meta">${escapeHtml(p.assetClass)} · ${escapeHtml(p.ticker.toUpperCase())}${p.live ? '' : ' · mock'}</div>
+      </td>
+      <td class="num">${fmtUSD(p.value)}</td>
+      <td class="num">${fmtPct(p.value / positions.reduce((s, x) => s + x.value, 0), 1)}</td>
+      <td class="num ${p.changePct >= 0 ? 'pos' : 'neg'}">${signed(p.changePct, v => fmtPct(v))}</td>
+      <td class="num ${p.dayChange >= 0 ? 'pos' : 'neg'}">${signed(p.dayChange, v => fmtUSD(v, 0))}</td>
+      <td class="num muted">${fmtPct(p.expectedReturn, 1)}</td>
+    </tr>`).join('');
+}
 
-function renderChart(series) {
-  const ctx = document.getElementById('price-chart').getContext('2d');
-  if (priceChart) priceChart.destroy();
+function renderAllocation(allocation) {
+  const bar = document.getElementById('allocation-bar');
+  const legend = document.getElementById('allocation-legend');
+  bar.innerHTML = allocation.map((a, i) =>
+    `<div class="alloc-seg" style="width:${(a.pct * 100).toFixed(2)}%;background:${PALETTE[i % PALETTE.length]}"></div>`).join('');
+  legend.innerHTML = allocation.map((a, i) => `
+    <li>
+      <span class="dot" style="background:${PALETTE[i % PALETTE.length]}"></span>
+      ${escapeHtml(a.assetClass)}
+      <span class="val">${fmtUSD(a.value)} · ${fmtPct(a.pct, 1)}</span>
+    </li>`).join('');
+}
 
-  const datasets = series.slice(0, 8).map((s, i) => ({
-    label: `${s.iataCode} ${s.route}`,
-    data: s.points.map(p => ({ x: p.t, y: p.price })),
-    borderColor: PALETTE[i % PALETTE.length],
-    backgroundColor: 'transparent',
-    tension: 0.3,
-    borderWidth: 2,
-    pointRadius: 3,
-  }));
+function renderProjection(projections) {
+  document.getElementById('projection').innerHTML = projections.map(p => `
+    <div class="proj-item">
+      <div class="proj-years">In ${p.years} year${p.years > 1 ? 's' : ''}</div>
+      <div class="proj-value">${fmtUSD(p.projectedValue)}</div>
+      <div class="proj-gain">${signed(p.expectedGain, v => fmtUSD(v))}</div>
+    </div>`).join('');
+}
 
-  if (!datasets.length) return;
+/* ---------- Edit holdings ---------- */
 
-  priceChart = new Chart(ctx, {
-    type: 'line',
-    data: { datasets },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      interaction: { mode: 'index', intersect: false },
-      plugins: {
-        legend: { labels: { color: '#7b8fb5', font: { size: 11 }, boxWidth: 12 } },
-        tooltip: {
-          backgroundColor: '#151d35',
-          borderColor: '#1e2d4e',
-          borderWidth: 1,
-          titleColor: '#e2e8f0',
-          bodyColor: '#7b8fb5',
-          callbacks: {
-            label: ctx => ` ${ctx.dataset.label}: $${ctx.parsed.y.toLocaleString()}`,
-          },
-        },
-      },
-      scales: {
-        x: {
-          type: 'time',
-          time: { unit: 'hour', displayFormats: { hour: 'MMM d, HH:mm' } },
-          ticks: { color: '#4a5d80', maxTicksLimit: 8 },
-          grid: { color: 'rgba(30,45,78,0.6)' },
-        },
-        y: {
-          ticks: {
-            color: '#4a5d80',
-            callback: v => `$${v.toLocaleString()}`,
-          },
-          grid: { color: 'rgba(30,45,78,0.6)' },
-        },
-      },
-    },
+async function openEditor() {
+  const res = await fetch('/api/holdings');
+  holdingsCache = await res.json();
+  renderEditRows();
+  document.getElementById('edit-modal').classList.remove('hidden');
+}
+
+function renderEditRows() {
+  const body = document.getElementById('edit-body');
+  body.innerHTML = holdingsCache.map((h, i) => `
+    <tr data-i="${i}">
+      <td><input data-f="name" value="${escapeAttr(h.name)}"></td>
+      <td><input data-f="ticker" value="${escapeAttr(h.ticker)}" style="width:90px"></td>
+      <td><input data-f="assetClass" value="${escapeAttr(h.assetClass)}" style="width:120px"></td>
+      <td><input class="num" data-f="value" type="number" step="1" value="${h.value}"></td>
+      <td><input class="num" data-f="expectedReturn" type="number" step="0.005" value="${h.expectedReturn}"></td>
+      <td><button class="row-del" title="Remove">✕</button></td>
+    </tr>`).join('');
+  updateEditTotal();
+}
+
+function collectRows() {
+  return [...document.querySelectorAll('#edit-body tr')].map(tr => {
+    const g = f => tr.querySelector(`[data-f="${f}"]`).value;
+    return {
+      name: g('name'),
+      ticker: g('ticker'),
+      assetClass: g('assetClass'),
+      value: parseFloat(g('value')) || 0,
+      expectedReturn: parseFloat(g('expectedReturn')) || 0,
+    };
   });
 }
 
-// ── Miles Calculator ─────────────────────────────────────────────────────────
+function updateEditTotal() {
+  const total = collectRows().reduce((s, r) => s + r.value, 0);
+  document.getElementById('edit-total').textContent = `Total: ${fmtUSD(total)}`;
+}
 
-function calcMiles() {
-  const balance = parseInt(document.getElementById('miles-input').value || '0', 10);
-  const routeKey = document.getElementById('miles-route').value;
-  const milesData = MILES_DATA[routeKey];
-  if (!milesData) return;
-
-  const needed = milesData.milesRT;
-  const flight = allFlights.find(f => f.id === milesData.flightId);
-  const cashPrice = flight ? flight.price : null;
-
-  document.getElementById('calc-miles-needed').textContent = `~${needed.toLocaleString()}`;
-  document.getElementById('calc-balance').textContent = balance.toLocaleString();
-
-  if (cashPrice) {
-    document.getElementById('calc-cash').textContent = `$${cashPrice.toLocaleString()}`;
-    const cpp = (cashPrice / needed * 100).toFixed(2);
-    const cppEl = document.getElementById('calc-cpp');
-    cppEl.textContent = `${cpp}¢ / mile`;
-    cppEl.className = 'val ' + (parseFloat(cpp) >= 1.5 ? 'green' : parseFloat(cpp) >= 1.0 ? 'amber' : '');
-  } else {
-    document.getElementById('calc-cash').textContent = '—';
-    document.getElementById('calc-cpp').textContent = '—';
-  }
-
-  const verdict = document.getElementById('miles-verdict');
-  const diff = balance - needed;
-  if (diff >= 5000) {
-    verdict.className = 'miles-verdict yes';
-    verdict.textContent = `✅ You have enough! ${diff.toLocaleString()} miles to spare.`;
-  } else if (diff >= -5000) {
-    verdict.className = 'miles-verdict close';
-    verdict.textContent = `⚠ Close — you're ${Math.abs(diff).toLocaleString()} miles ${diff >= 0 ? 'over' : 'short'}. Check live availability.`;
-  } else {
-    verdict.className = 'miles-verdict no';
-    verdict.textContent = `❌ Short by ${Math.abs(diff).toLocaleString()} miles for peak season.`;
+async function saveHoldings() {
+  const holdings = collectRows().filter(h => h.name.trim());
+  if (!holdings.length) return alert('Add at least one holding.');
+  const btn = document.getElementById('save-holdings');
+  btn.disabled = true; btn.textContent = 'Saving…';
+  try {
+    const res = await fetch('/api/holdings', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ holdings }),
+    });
+    const data = await res.json();
+    if (data.portfolio) render(data.portfolio);
+    document.getElementById('edit-modal').classList.add('hidden');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Save & refresh';
   }
 }
 
-// ── Alerts ────────────────────────────────────────────────────────────────────
+/* ---------- helpers ---------- */
 
-function renderAlerts(newAlerts) {
-  if (newAlerts.length) alertLog = [...newAlerts, ...alertLog].slice(0, 50);
-  const container = document.getElementById('alerts-log');
-  if (!alertLog.length) {
-    container.innerHTML = '<div class="alerts-empty">No price changes detected yet — alerts appear after the second scan.</div>';
-    return;
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+function escapeAttr(s) { return escapeHtml(s); }
+
+/* ---------- events ---------- */
+
+document.getElementById('refresh-btn').addEventListener('click', async () => {
+  const res = await fetch('/api/scan', { method: 'POST' });
+  render(await res.json());
+});
+document.getElementById('edit-btn').addEventListener('click', openEditor);
+document.getElementById('close-modal').addEventListener('click', () =>
+  document.getElementById('edit-modal').classList.add('hidden'));
+document.getElementById('add-row').addEventListener('click', () => {
+  holdingsCache = collectRows();
+  holdingsCache.push({ name: 'New holding', ticker: 'spy.us', assetClass: 'US Equity', value: 0, expectedReturn: 0.07 });
+  renderEditRows();
+});
+document.getElementById('save-holdings').addEventListener('click', saveHoldings);
+document.getElementById('edit-body').addEventListener('input', updateEditTotal);
+document.getElementById('edit-body').addEventListener('click', e => {
+  if (e.target.classList.contains('row-del')) {
+    holdingsCache = collectRows();
+    holdingsCache.splice(+e.target.closest('tr').dataset.i, 1);
+    renderEditRows();
   }
-  container.innerHTML = alertLog.map(a => {
-    const dir = a.direction === 'down';
-    const timeStr = new Date(a.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    return `<div class="alert-item">
-      <span class="alert-icon">${dir ? '📉' : '📈'}</span>
-      <span class="alert-text">
-        <strong>${a.airline}</strong> <span class="muted">${a.route}</span>
-        &nbsp;$${a.oldPrice.toLocaleString()} → <span class="${dir ? 'alert-price-down' : 'alert-price-up'}">$${a.newPrice.toLocaleString()}</span>
-        &nbsp;<span class="muted">(${dir ? '' : '+'}${a.change} · ${dir ? '' : '+'}${a.percentChange}%)</span>
-      </span>
-      <span class="alert-time">${timeStr}</span>
-    </div>`;
-  }).join('');
-}
+});
 
-// ── Toast ─────────────────────────────────────────────────────────────────────
+// Live updates via Server-Sent Events
+const es = new EventSource('/events');
+es.addEventListener('scan-complete', e => render(JSON.parse(e.data)));
 
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 4000);
-}
-
-// ── Helpers ───────────────────────────────────────────────────────────────────
-
-function fmtTime(iso) {
-  if (!iso) return '—';
-  const d = new Date(iso);
-  return d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true });
-}
-
-// ── Boot ──────────────────────────────────────────────────────────────────────
-init();
+loadPortfolio();

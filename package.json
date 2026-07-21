@@ -1,7 +1,7 @@
 {
-  "name": "flight-scanner",
+  "name": "market-movements-tracker",
   "version": "1.0.0",
-  "description": "Live NYC → London flight price scanner",
+  "description": "Live 401(k) / portfolio movement tracker with expected-gain projections",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

@@ -3,105 +3,83 @@ const express = require('express');
 const path = require('path');
 const { EventEmitter } = require('events');
 
-const { getMockFlights } = require('./src/mockData');
-const { saveFlights, getPriceHistory, getLastScanTime } = require('./src/database');
-const { checkAlerts } = require('./src/alertManager');
+const { readHoldings, writeHoldings } = require('./src/holdings');
+const { fetchQuotes } = require('./src/marketData');
+const { buildPortfolio } = require('./src/portfolio');
+const { saveSnapshot, getValueHistory, getLastScan } = require('./src/database');
 const scheduler = require('./src/scheduler');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const SCAN_INTERVAL = parseInt(process.env.SCAN_INTERVAL_MINUTES || '30', 10);
+const SCAN_INTERVAL = parseInt(process.env.SCAN_INTERVAL_MINUTES || '15', 10);
 
 const scanEmitter = new EventEmitter();
 const clients = new Set();
 
-let latestFlights = [];
-let previousFlights = [];
-let lastAlerts = [];
+let latestPortfolio = null;
 let lastScanTime = null;
 let scanSource = 'mock';
 
 async function runScan() {
-  console.log('[scan] Starting flight scan...');
-  let flights;
+  console.log('[scan] Refreshing market movements...');
+  const holdings = readHoldings();
+  const { quotes, source } = await fetchQuotes(holdings.map(h => h.ticker));
 
-  if (process.env.AMADEUS_CLIENT_ID && process.env.AMADEUS_CLIENT_SECRET) {
-    try {
-      const { fetchAllFlights } = require('./src/amadeusClient');
-      flights = await fetchAllFlights();
-      scanSource = 'amadeus';
-      console.log(`[scan] Amadeus returned ${flights.length} flights`);
-    } catch (err) {
-      console.warn('[scan] Amadeus API failed, falling back to mock:', err.message);
-      flights = getMockFlights();
-      scanSource = 'mock';
-    }
-  } else {
-    flights = getMockFlights();
-    scanSource = 'mock';
-  }
-
-  lastAlerts = checkAlerts(previousFlights, flights);
-  previousFlights = latestFlights;
-  latestFlights = flights;
+  latestPortfolio = buildPortfolio(holdings, quotes);
+  scanSource = source;
   lastScanTime = new Date().toISOString();
 
-  saveFlights(flights, scanSource);
+  saveSnapshot(latestPortfolio, source);
 
-  const payload = JSON.stringify({
-    flights,
-    alerts: lastAlerts,
-    scannedAt: lastScanTime,
-    source: scanSource,
-    nextScanIn: SCAN_INTERVAL * 60,
-  });
-
+  const payload = JSON.stringify(buildResponse());
   for (const res of clients) {
     try { res.write(`event: scan-complete\ndata: ${payload}\n\n`); } catch (_) {}
   }
 
-  console.log(`[scan] Done. ${flights.length} flights, ${lastAlerts.length} alerts. Source: ${scanSource}`);
+  console.log(`[scan] Done. Total $${latestPortfolio.totals.value.toFixed(0)}, ` +
+    `day ${(latestPortfolio.totals.dayChangePct * 100).toFixed(2)}%. Source: ${source}`);
 }
 
-// REST API
-app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
-
-app.get('/api/flights', (_req, res) => {
-  res.json({
-    flights: latestFlights,
-    alerts: lastAlerts,
+function buildResponse() {
+  return {
+    ...latestPortfolio,
     scannedAt: lastScanTime,
     source: scanSource,
     nextScanIn: SCAN_INTERVAL * 60,
-  });
+  };
+}
+
+app.use(express.json());
+app.use(express.static(path.join(__dirname, 'public')));
+
+app.get('/api/portfolio', (_req, res) => {
+  if (!latestPortfolio) return res.json({ ready: false });
+  res.json(buildResponse());
+});
+
+app.get('/api/holdings', (_req, res) => {
+  res.json(readHoldings());
+});
+
+app.put('/api/holdings', async (req, res) => {
+  const incoming = req.body && req.body.holdings;
+  if (!Array.isArray(incoming) || !incoming.length) {
+    return res.status(400).json({ error: 'Body must be { holdings: [...] } with at least one holding.' });
+  }
+  const saved = writeHoldings(incoming);
+  await runScan();
+  res.json({ ok: true, holdings: saved, portfolio: buildResponse() });
 });
 
 app.get('/api/history', (_req, res) => {
-  const rows = getPriceHistory(7);
-  // Group by flight_id for charting
-  const grouped = {};
-  for (const row of rows) {
-    if (!grouped[row.flight_id]) {
-      grouped[row.flight_id] = {
-        flightId: row.flight_id,
-        airline: row.airline,
-        iataCode: row.iata_code,
-        route: `${row.origin}→${row.destination}`,
-        points: [],
-      };
-    }
-    grouped[row.flight_id].points.push({ t: row.scanned_at, price: row.price });
-  }
-  res.json(Object.values(grouped));
+  res.json(getValueHistory(30));
 });
 
 app.post('/api/scan', async (_req, res) => {
   await runScan();
-  res.json({ ok: true, scannedAt: lastScanTime, count: latestFlights.length });
+  res.json({ ok: true, scannedAt: lastScanTime, ...buildResponse() });
 });
 
-// Server-Sent Events
 app.get('/events', (req, res) => {
   res.setHeader('Content-Type', 'text/event-stream');
   res.setHeader('Cache-Control', 'no-cache');
@@ -128,17 +106,17 @@ app.get('/api/status', (_req, res) => {
   res.json({
     uptime: process.uptime(),
     lastScan: lastScanTime,
-    flightCount: latestFlights.length,
     source: scanSource,
+    totalValue: latestPortfolio ? latestPortfolio.totals.value : null,
     clientCount: clients.size,
+    lastPersisted: getLastScan(),
   });
 });
 
-// Boot
 app.listen(PORT, async () => {
-  console.log(`\n✈  Flight Scanner running at http://localhost:${PORT}`);
-  console.log(`   Data source: ${process.env.AMADEUS_CLIENT_ID ? 'Amadeus API' : 'Mock data (set AMADEUS_CLIENT_ID to use live API)'}`);
-  console.log(`   Scan interval: every ${SCAN_INTERVAL} minutes\n`);
+  console.log(`\n📈  Market Movements Tracker running at http://localhost:${PORT}`);
+  console.log(`   Live prices: Stooq (free, no key). Falls back to mock if network blocked.`);
+  console.log(`   Refresh interval: every ${SCAN_INTERVAL} minutes\n`);
   await runScan();
   scheduler.start(runScan, SCAN_INTERVAL);
 });
