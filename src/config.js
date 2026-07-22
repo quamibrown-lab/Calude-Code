@@ -25,9 +25,9 @@ const DEFAULT_CONFIG = {
     loan2: 74.33,         // 401(k) loan 2 repayment, reinvested
   },
   match: {
-    rate: 0.04,           // GS: 100% up to 4% of base pay
-    floor: 6000,          // GS: $6,000/yr supplemental floor
-    baseSalary: 135000,   // eligible base pay (4% = $5,400 → $6k floor applies)
+    rate: 0.06,           // GS: 100% up to 6% of base pay
+    floor: 6000,          // $6,000/yr minimum (non-binding at this pay level)
+    baseSalary: 135000,   // eligible base pay (6% = $8,100)
   },
   // Annual raise grows the elective contribution and base pay (and thus the
   // match) each year. Loan repayments are fixed and do NOT grow.
