@@ -18,9 +18,10 @@ function projectSeries(startValue, blended, cfg) {
   const periods = cfg.payPeriodsPerYear || 26;
   const r = Math.pow(1 + blended, 1 / periods) - 1;
   const loanBi = cfg.biweekly.loan1 + cfg.biweekly.loan2;   // fixed, reinvested — no growth
-  const g = 1 + (cfg.annualRaisePct || 0);
+  const gC = 1 + (cfg.contribAutoIncreasePct || 0);         // contribution auto-escalation
+  const gP = 1 + (cfg.annualRaisePct || 0);                 // pay raise → grows comp/match ceiling
 
-  let contribBi = cfg.biweekly.contribution;                // grows with raises
+  let contribBi = cfg.biweekly.contribution;                // grows by auto-escalation
   let comp = cfg.match.eligibleComp;                        // total comp, grows with raises → drives match
   let bal = startValue, contribTot = 0, matchTot = 0;
   const byYear = { 0: { value: startValue, contrib: 0, match: 0 } };
@@ -31,7 +32,7 @@ function projectSeries(startValue, blended, cfg) {
   const year1Biweekly = contribBi + loanBi;
 
   for (let y = 1; y <= HORIZON; y++) {
-    if (y > 1) { contribBi *= g; comp *= g; }
+    if (y > 1) { contribBi *= gC; comp *= gP; }
     const deferralAnnual = contribBi * periods;
     const annualMatch = matchAnnual({ ...cfg, match: { ...cfg.match, eligibleComp: comp } }, deferralAnnual);
     const biEmp = contribBi + loanBi;

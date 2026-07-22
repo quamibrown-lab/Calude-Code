@@ -29,8 +29,13 @@ const DEFAULT_CONFIG = {
     floor: 6000,          // $6,000/yr minimum (non-binding at this comp level)
     eligibleComp: 200000, // TOTAL comp (base + bonus); drives the match
   },
-  // Annual raise grows the elective contribution and base pay (and thus the
-  // match) each year. Loan repayments are fixed and do NOT grow.
+  // Two independent growth rates:
+  //  - contribAutoIncreasePct: the plan's auto-escalation of the elective
+  //    contribution dollar amount (1%/yr here).
+  //  - annualRaisePct: pay raise that grows total comp each year, which lifts
+  //    the 6%-of-comp match ceiling.
+  // Loan repayments are fixed and do NOT grow.
+  contribAutoIncreasePct: 0.01,
   annualRaisePct: 0.03,
   payPeriodsPerYear: 26,
 };
