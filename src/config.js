@@ -27,7 +27,7 @@ const DEFAULT_CONFIG = {
   match: {
     rate: 0.06,           // GS: 100% up to 6% of eligible compensation
     floor: 6000,          // $6,000/yr minimum (non-binding at this comp level)
-    eligibleComp: 135000, // TOTAL comp (base + bonus) — set to actual; drives the match
+    eligibleComp: 200000, // TOTAL comp (base + bonus); drives the match
   },
   // Annual raise grows the elective contribution and base pay (and thus the
   // match) each year. Loan repayments are fixed and do NOT grow.
