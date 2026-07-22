@@ -27,9 +27,11 @@ const DEFAULT_CONFIG = {
   match: {
     rate: 0.04,           // GS: 100% up to 4% of base pay
     floor: 6000,          // GS: $6,000/yr supplemental floor
-    baseSalary: 175000,   // ASSUMPTION — set to actual eligible base pay
+    baseSalary: 135000,   // eligible base pay (4% = $5,400 → $6k floor applies)
   },
-  annualRaisePct: 0,      // optional: grow contributions & match each year
+  // Annual raise grows the elective contribution and base pay (and thus the
+  // match) each year. Loan repayments are fixed and do NOT grow.
+  annualRaisePct: 0.03,
   payPeriodsPerYear: 26,
 };
 

@@ -17,26 +17,32 @@ const HORIZON = 20;
 function projectSeries(startValue, blended, cfg) {
   const periods = cfg.payPeriodsPerYear || 26;
   const r = Math.pow(1 + blended, 1 / periods) - 1;
-  const biweekly = cfg.biweekly.contribution + cfg.biweekly.loan1 + cfg.biweekly.loan2;
-  const deferralAnnual = cfg.biweekly.contribution * periods;
-  const annualMatch = matchAnnual(cfg, deferralAnnual);
+  const loanBi = cfg.biweekly.loan1 + cfg.biweekly.loan2;   // fixed, reinvested — no growth
+  const g = 1 + (cfg.annualRaisePct || 0);
 
+  let contribBi = cfg.biweekly.contribution;                // grows with raises
+  let salary = cfg.match.baseSalary;                        // grows with raises → drives match
   let bal = startValue, contribTot = 0, matchTot = 0;
-  let biEmp = biweekly, biMatch = annualMatch / periods;
   const byYear = { 0: { value: startValue, contrib: 0, match: 0 } };
 
+  // Year-1 figures for reporting.
+  const year1Deferral = contribBi * periods;
+  const year1Match = matchAnnual(cfg, year1Deferral);
+  const year1Biweekly = contribBi + loanBi;
+
   for (let y = 1; y <= HORIZON; y++) {
-    if (y > 1 && cfg.annualRaisePct) {
-      const g = 1 + cfg.annualRaisePct;
-      biEmp *= g; biMatch *= g;
-    }
+    if (y > 1) { contribBi *= g; salary *= g; }
+    const deferralAnnual = contribBi * periods;
+    const annualMatch = matchAnnual({ ...cfg, match: { ...cfg.match, baseSalary: salary } }, deferralAnnual);
+    const biEmp = contribBi + loanBi;
+    const biMatch = annualMatch / periods;
     for (let p = 0; p < periods; p++) {
       bal = bal * (1 + r) + biEmp + biMatch;
       contribTot += biEmp; matchTot += biMatch;
     }
     byYear[y] = { value: bal, contrib: contribTot, match: matchTot };
   }
-  return { byYear, biweekly, annualMatch, deferralAnnual };
+  return { byYear, biweekly: year1Biweekly, annualMatch: year1Match, deferralAnnual: year1Deferral };
 }
 
 function buildPortfolio(holdings, quotes, cfg = null) {
