@@ -28,6 +28,7 @@ const DEFAULT_CONFIG = {
     rate: 0.06,           // GS: 100% up to 6% of eligible compensation
     floor: 6000,          // $6,000/yr minimum (non-binding at this comp level)
     eligibleComp: 200000, // TOTAL comp (base + bonus); drives the match
+    compCap: 360000,      // IRS annual comp limit 401(a)(17), 2026 — caps matchable comp
   },
   // Two independent growth rates:
   //  - contribAutoIncreasePct: the plan's auto-escalation of the elective
@@ -36,7 +37,7 @@ const DEFAULT_CONFIG = {
   //    the 6%-of-comp match ceiling.
   // Loan repayments are fixed and do NOT grow.
   contribAutoIncreasePct: 0.01,
-  annualRaisePct: 0.03,
+  annualRaisePct: 0.10,
   payPeriodsPerYear: 26,
 };
 
@@ -60,7 +61,8 @@ function writeConfig(cfg) {
 // Match is 100% of the deferral up to `rate` of eligible (total) comp, with the
 // supplemental floor as a minimum. Capped by what the employee actually defers.
 function matchAnnual(cfg, deferralAnnual) {
-  const raw = Math.min(cfg.match.rate * cfg.match.eligibleComp, deferralAnnual);
+  const cappedComp = Math.min(cfg.match.eligibleComp, cfg.match.compCap || Infinity);
+  const raw = Math.min(cfg.match.rate * cappedComp, deferralAnnual);
   return Math.max(raw, cfg.match.floor);
 }
 
