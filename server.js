@@ -4,6 +4,7 @@ const path = require('path');
 const { EventEmitter } = require('events');
 
 const { readHoldings, writeHoldings } = require('./src/holdings');
+const { readConfig, writeConfig } = require('./src/config');
 const { fetchQuotes } = require('./src/marketData');
 const { buildPortfolio } = require('./src/portfolio');
 const { saveSnapshot, getValueHistory, getLastScan } = require('./src/database');
@@ -25,7 +26,7 @@ async function runScan() {
   const holdings = readHoldings();
   const { quotes, source } = await fetchQuotes(holdings.map(h => h.ticker));
 
-  latestPortfolio = buildPortfolio(holdings, quotes);
+  latestPortfolio = buildPortfolio(holdings, quotes, readConfig());
   scanSource = source;
   lastScanTime = new Date().toISOString();
 
@@ -69,6 +70,19 @@ app.put('/api/holdings', async (req, res) => {
   const saved = writeHoldings(incoming);
   await runScan();
   res.json({ ok: true, holdings: saved, portfolio: buildResponse() });
+});
+
+app.get('/api/config', (_req, res) => {
+  res.json(readConfig());
+});
+
+app.put('/api/config', async (req, res) => {
+  if (!req.body || typeof req.body !== 'object') {
+    return res.status(400).json({ error: 'Body must be a config object.' });
+  }
+  const saved = writeConfig(req.body);
+  await runScan();
+  res.json({ ok: true, config: saved, portfolio: buildResponse() });
 });
 
 app.get('/api/history', (_req, res) => {

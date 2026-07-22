@@ -45,6 +45,18 @@ function render(data) {
     document.getElementById('proj-10-gain').textContent = `${signed(p10.expectedGain, v => fmtUSD(v))} expected gain`;
   }
 
+  const caption = document.getElementById('proj-caption');
+  if (caption) {
+    if (data.contributions) {
+      const c = data.contributions;
+      caption.textContent =
+        `Includes ${fmtUSD(c.biweekly, 2)}/paycheck + ${fmtUSD(c.annualMatch)}/yr Goldman match ` +
+        `(${fmtUSD(c.annualTotal)}/yr added), compounded biweekly at ${fmtPct(t.blendedExpectedReturn)}`;
+    } else {
+      caption.textContent = `Compounded at blended ${fmtPct(t.blendedExpectedReturn)} long-run return`;
+    }
+  }
+
   renderHoldings(data.positions);
   renderAllocation(data.allocation);
   renderProjection(data.projections);
@@ -80,12 +92,18 @@ function renderAllocation(allocation) {
 }
 
 function renderProjection(projections) {
-  document.getElementById('projection').innerHTML = projections.map(p => `
+  document.getElementById('projection').innerHTML = projections.map(p => {
+    const added = (p.contributions != null && p.employerMatch != null)
+      ? `<div class="proj-added">${fmtUSD(p.contributions + p.employerMatch)} added in</div>`
+      : '';
+    return `
     <div class="proj-item">
       <div class="proj-years">In ${p.years} year${p.years > 1 ? 's' : ''}</div>
       <div class="proj-value">${fmtUSD(p.projectedValue)}</div>
-      <div class="proj-gain">${signed(p.expectedGain, v => fmtUSD(v))}</div>
-    </div>`).join('');
+      <div class="proj-gain">${signed(p.expectedGain, v => fmtUSD(v))} vs today</div>
+      ${added}
+    </div>`;
+  }).join('');
 }
 
 /* ---------- Edit holdings ---------- */
