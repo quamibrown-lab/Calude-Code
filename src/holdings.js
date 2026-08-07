@@ -7,9 +7,11 @@ const HOLDINGS_FILE = path.join(DATA_DIR, 'holdings.json');
 if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
 
 /*
- * 401(k) allocation from the statement dated Jan 1 - Jul 20, 2026
- * (closing balances, total $58,558.27). This portfolio is 100% equity — there
- * is no bond / fixed-income position.
+ * 401(k) allocation from the statement dated Jan 1 - Jul 20, 2026 (closing
+ * balances, $58,558.27) plus the first payroll deposit posted Wed Jul 22
+ * ($1,145.00 = $683.46 deferral + loan repayments + $461.54 employer match),
+ * allocated per the 50/10/10/8/17/5 election → total $59,703.27. This portfolio
+ * is 100% equity — there is no bond / fixed-income position.
  *
  * Each holding stores the dollar value invested plus a liquid `ticker` used as a
  * live-price proxy for that fund's asset class (the underlying BlackRock/SSgA
@@ -23,7 +25,7 @@ const SEED_HOLDINGS = [
     name: 'S&P 500 Index — SSgA',
     ticker: 'spy.us',
     assetClass: 'US Large Cap',
-    value: 29279.14,
+    value: 29851.64,
     expectedReturn: 0.075,
   },
   {
@@ -31,7 +33,7 @@ const SEED_HOLDINGS = [
     name: 'Lrg Cap Value Eq Idx — BlackRock',
     ticker: 'ive.us',
     assetClass: 'US Large Cap',
-    value: 5855.83,
+    value: 5970.33,
     expectedReturn: 0.075,
   },
   {
@@ -39,7 +41,7 @@ const SEED_HOLDINGS = [
     name: 'Mid Cap Eq Index — SSgA',
     ticker: 'ijh.us',
     assetClass: 'US Mid Cap',
-    value: 5855.83,
+    value: 5970.33,
     expectedReturn: 0.08,
   },
   {
@@ -47,7 +49,7 @@ const SEED_HOLDINGS = [
     name: 'Small Cap Eq Index — SSgA',
     ticker: 'ijr.us',
     assetClass: 'US Small Cap',
-    value: 4684.66,
+    value: 4776.26,
     expectedReturn: 0.085,
   },
   {
@@ -55,7 +57,7 @@ const SEED_HOLDINGS = [
     name: 'Intl Equity Index — BlackRock',
     ticker: 'efa.us',
     assetClass: 'International',
-    value: 9954.90,
+    value: 10149.55,
     expectedReturn: 0.065,
   },
   {
@@ -63,7 +65,7 @@ const SEED_HOLDINGS = [
     name: 'Emerging Markets Index — SSgA',
     ticker: 'eem.us',
     assetClass: 'Emerging Mkts',
-    value: 2927.91,
+    value: 2985.16,
     expectedReturn: 0.085,
   },
 ];
